@@ -87,7 +87,7 @@ func GetUser(user string) (*User, error) {
 	return ret, err
 }
 
-type ByTotalPP []User
+type ByTotalPP []*User
 
 func (s ByTotalPP) Len() int { return len(s) }
 func (s ByTotalPP) Swap(i, j int) { s[i], s[j] = s[j], s[i] }

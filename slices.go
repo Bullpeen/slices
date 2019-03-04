@@ -6,20 +6,21 @@ import (
 	log "github.com/Sirupsen/logrus"
 	"github.com/jirwin/quadlek/quadlek"
 	"sort"
+	"strings"
 	"fmt"
 )
 
-var users = []string { "1841289615922336", "76561197976367183", "76561198057633471", "76561198002272597", "76561197974723967", "76561197969022064"}
+var slicers []string
 
 func GetScores() (string) {
 
-	var output []User
+	var output []*User
 
-	for _, uid := range users {
+	for _, uid := range slicers {
 		uu, err := GetUser(uid)
 
 		if err == nil {
-			output = append(output, *uu)
+			output = append(output, uu)
 		} else {
 			log.Info("Error fetching user: %s", err)
 		}
@@ -27,17 +28,13 @@ func GetScores() (string) {
 
 	sort.Sort(ByTotalPP(output))
 
-	var outStr = ""
+	var outStr []string
 
 	for _, user := range output {
-		if len(outStr) != 0 {
-			outStr += "\n"
-		}
-
-		outStr += fmt.Sprintf("*%s*, %f", user.UserName, user.TotalPP)
+		outStr = append(outStr, fmt.Sprintf("*%s*, %f", user.UserName, user.TotalPP))
 	}
 
-	return outStr
+	return strings.Join(outStr, "\n")
 }
 
 func slices(ctx context.Context, cmdChannel <-chan *quadlek.CommandMsg) {
@@ -55,7 +52,8 @@ func slices(ctx context.Context, cmdChannel <-chan *quadlek.CommandMsg) {
 	}
 }
 
-func Register() quadlek.Plugin {
+func Register(who []string) quadlek.Plugin {
+	slicers = who
 	return quadlek.MakePlugin(
 		"Slices",
 		[]quadlek.Command{
