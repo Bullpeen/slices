@@ -41,7 +41,7 @@ func GetScores() (string) {
 
 	for _, user := range output {
 		if user != nil {
-			outStr = append(outStr, fmt.Sprintf("*%s*, %f", user.UserName, user.TotalPP))
+			outStr = append(outStr, fmt.Sprintf("*%s*: %f", user.UserName, user.TotalPP))
 		}
 	}
 
