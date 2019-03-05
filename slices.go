@@ -8,30 +8,41 @@ import (
 	"sort"
 	"strings"
 	"fmt"
+	"sync"
 )
 
 var slicers []string
 
 func GetScores() (string) {
 
-	var output []*User
+	var output = make([]*User, len(slicers))
+	var wg sync.WaitGroup
 
-	for _, uid := range slicers {
-		uu, err := GetUser(uid)
+	wg.Add(len(slicers))
 
-		if err == nil {
-			output = append(output, uu)
-		} else {
-			log.Info("Error fetching user: %s", err)
-		}
+	for idx, uid := range slicers {
+		go func(idx int, uid string) {
+			defer wg.Done()
+			uu, err := GetUser(uid)
+
+			if err == nil {
+				output[idx] = uu
+			} else {
+				log.Info("Error fetching user: %s", err)
+			}
+		}(idx, uid)
 	}
+
+	wg.Wait()
 
 	sort.Sort(ByTotalPP(output))
 
 	var outStr []string
 
 	for _, user := range output {
-		outStr = append(outStr, fmt.Sprintf("*%s*, %f", user.UserName, user.TotalPP))
+		if user != nil {
+			outStr = append(outStr, fmt.Sprintf("*%s*, %f", user.UserName, user.TotalPP))
+		}
 	}
 
 	return strings.Join(outStr, "\n")
@@ -40,15 +51,20 @@ func GetScores() (string) {
 func slices(ctx context.Context, cmdChannel <-chan *quadlek.CommandMsg) {
 	for {
 		select {
-		 case cmdMsg := <-cmdChannel:
-			 cmdMsg.Command.Reply() <- nil
-			 cmdMsg.Bot.RespondToSlashCommand(cmdMsg.Command.ResponseUrl, &quadlek.CommandResp{
-				 Text:      GetScores(),
-				 InChannel: true,
-			 })
+		case cmdMsg := <-cmdChannel:
 
-			 case <-ctx.Done():
-			 	log.Info("slices: stopping plugin")
+			cmdMsg.Command.Reply() <- &quadlek.CommandResp{
+				Text:         "Fetching Scores..",
+				ResponseType: "ephemeral",
+			}
+
+			cmdMsg.Bot.RespondToSlashCommand(cmdMsg.Command.ResponseUrl, &quadlek.CommandResp{
+				Text:      GetScores(),
+				InChannel: true,
+			})
+
+		case <-ctx.Done():
+			log.Info("slices: stopping plugin")
 		}
 	}
 }
