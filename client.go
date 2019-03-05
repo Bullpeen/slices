@@ -83,6 +83,9 @@ func GetUser(user string) (*User, error) {
 
 	ret := &User{}
 	err = json.Unmarshal(body, ret)
+	if err != nil {
+		return nil, err
+	}
 
 	return ret, err
 }
