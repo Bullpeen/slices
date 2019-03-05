@@ -13,36 +13,43 @@ import (
 
 var slicers []string
 
+
 func GetScores() (string) {
 
-	var output = make([]*User, len(slicers))
+	results := make(chan *User, 100)
 	var wg sync.WaitGroup
 
-	wg.Add(len(slicers))
+	for _, uid := range slicers {
+		wg.Add(1)
 
-	for idx, uid := range slicers {
-		go func(idx int, uid string) {
+		go func(uid string) {
 			defer wg.Done()
 			uu, err := GetUser(uid)
 
-			if err == nil {
-				output[idx] = uu
-			} else {
+			results <- uu
+
+			if err != nil {
 				log.Info("Error fetching user: %s", err)
 			}
-		}(idx, uid)
+		}(uid)
 	}
 
-	wg.Wait()
+	var output []*User
 
+	for a := 0; a < len(slicers); a++ {
+		u := <-results
+		if u != nil {
+			output = append(output, u)
+		}
+	}
+
+	close(results)
 	sort.Sort(ByTotalPP(output))
 
 	var outStr []string
 
 	for _, user := range output {
-		if user != nil {
-			outStr = append(outStr, fmt.Sprintf("*%s*: %f", user.UserName, user.TotalPP))
-		}
+		outStr = append(outStr, fmt.Sprintf("*%s*: %f", user.UserName, user.TotalPP))
 	}
 
 	return strings.Join(outStr, "\n")

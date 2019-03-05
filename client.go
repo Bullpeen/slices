@@ -83,6 +83,9 @@ func GetUser(user string) (*User, error) {
 
 	ret := &User{}
 	err = json.Unmarshal(body, ret)
+	if err != nil {
+		return nil, err
+	}
 
 	return ret, err
 }
@@ -91,8 +94,4 @@ type ByTotalPP []*User
 
 func (s ByTotalPP) Len() int { return len(s) }
 func (s ByTotalPP) Swap(i, j int) { s[i], s[j] = s[j], s[i] }
-func (s ByTotalPP) Less(i, j int) bool {
-	if s[i] == nil { return false }
-	if s[j] == nil { return true }
-	return s[i].TotalPP > s[j].TotalPP
-}
+func (s ByTotalPP) Less(i, j int) bool { return s[i].TotalPP > s[j].TotalPP }
