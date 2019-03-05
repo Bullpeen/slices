@@ -14,7 +14,7 @@ var slicers []string
 
 
 func GetScores() (string) {
-	results := make(chan *User, 100)
+	results := make(chan *User, len(slicers))
 
 	for _, uid := range slicers {
 		go func(uid string) {
