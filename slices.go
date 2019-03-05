@@ -8,22 +8,16 @@ import (
 	"sort"
 	"strings"
 	"fmt"
-	"sync"
 )
 
 var slicers []string
 
 
 func GetScores() (string) {
-
 	results := make(chan *User, 100)
-	var wg sync.WaitGroup
 
 	for _, uid := range slicers {
-		wg.Add(1)
-
 		go func(uid string) {
-			defer wg.Done()
 			uu, err := GetUser(uid)
 
 			results <- uu
@@ -37,8 +31,7 @@ func GetScores() (string) {
 	var output []*User
 
 	for a := 0; a < len(slicers); a++ {
-		u := <-results
-		if u != nil {
+		if u := <-results; u != nil {
 			output = append(output, u)
 		}
 	}
