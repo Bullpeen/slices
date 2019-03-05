@@ -41,10 +41,11 @@ func slices(ctx context.Context, cmdChannel <-chan *quadlek.CommandMsg) {
 	for {
 		select {
 		 case cmdMsg := <-cmdChannel:
-			 cmdMsg.Command.Reply() <- &quadlek.CommandResp{
+			 cmdMsg.Command.Reply() <- nil
+			 cmdMsg.Bot.RespondToSlashCommand(cmdMsg.Command.ResponseUrl, &quadlek.CommandResp{
 				 Text:      GetScores(),
 				 InChannel: true,
-			 }
+			 })
 
 			 case <-ctx.Done():
 			 	log.Info("slices: stopping plugin")
