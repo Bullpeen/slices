@@ -3,7 +3,7 @@ package slices
 import (
 	"context"
 
-	log "github.com/Sirupsen/logrus"
+	log "github.com/sirupsen/logrus"
 	"github.com/jirwin/quadlek/quadlek"
 	"sort"
 	"strings"
