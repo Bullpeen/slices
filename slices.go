@@ -42,7 +42,7 @@ func GetScores() (string) {
 	var outStr []string
 
 	for _, user := range output {
-		outStr = append(outStr, fmt.Sprintf("*%s*: %f #%d", user.UserName, user.TotalPP, user.RankGlobal))
+		outStr = append(outStr, fmt.Sprintf("*%s*: %.2f #%d", user.UserName, user.TotalPP, user.RankGlobal))
 	}
 
 	return strings.Join(outStr, "\n")

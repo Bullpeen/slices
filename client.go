@@ -68,7 +68,7 @@ func GetUser(user string) (*User, error) {
 		return nil, err
 	}
 
-	client := http.Client { Timeout: time.Duration(10 * time.Second) }
+	client := http.Client { Timeout: time.Duration(30 * time.Second) }
 
 	resp, err := client.Do(request)
 	if err != nil {
